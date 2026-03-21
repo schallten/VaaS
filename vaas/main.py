@@ -7,7 +7,10 @@ import edge_tts
 import uuid
 import os
 from datetime import date
-from vaas.auth import validate_api_key, hash_password, verify_password, users_col, keys_col, usage_col
+try:
+    from vaas.auth import validate_api_key, hash_password, verify_password, users_col, keys_col, usage_col
+except ImportError:
+    from auth import validate_api_key, hash_password, verify_password, users_col, keys_col, usage_col
 
 app = FastAPI()
 
