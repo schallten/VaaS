@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+faster-whisper
+edge-tts
+motor
+dnspython
+passlib[bcrypt]
+python-multipart
+python-dotenv

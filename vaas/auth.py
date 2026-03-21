@@ -1,35 +1,24 @@
-import sqlite3
 import os
 import uuid
+import asyncio
 from datetime import date
-from fastapi import HTTPException, Security, Depends
-from fastapi.security import APIKeyHeader
+from motor.motor_asyncio import AsyncIOMotorClient
 from passlib.context import CryptContext
+from fastapi import Header, HTTPException, Depends
+from dotenv import load_dotenv
 
-# Database Setup
-DB_PATH = "vaas.db"
+load_dotenv()
 
-def get_db():
-    conn = sqlite3.connect(DB_PATH, check_same_thread=False)
-    conn.row_factory = sqlite3.Row
-    return conn
+# MongoDB Configuration
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+client = AsyncIOMotorClient(MONGO_URI)
+db = client.vaas_db
 
-# Initialize DB on start
-conn = get_db()
-cursor = conn.cursor()
-cursor.execute('''CREATE TABLE IF NOT EXISTS users 
-                  (id TEXT PRIMARY KEY, username TEXT UNIQUE, password_hash TEXT)''')
-cursor.execute('''CREATE TABLE IF NOT EXISTS api_keys 
-                  (id TEXT PRIMARY KEY, user_id TEXT, key TEXT UNIQUE, 
-                   FOREIGN KEY(user_id) REFERENCES users(id))''')
-cursor.execute('''CREATE TABLE IF NOT EXISTS usage_logs 
-                  (id TEXT PRIMARY KEY, api_key_id TEXT, usage_date TEXT, count INTEGER,
-                   UNIQUE(api_key_id, usage_date),
-                   FOREIGN KEY(api_key_id) REFERENCES api_keys(id))''')
-conn.commit()
+users_col = db.users
+keys_col = db.api_keys
+usage_col = db.usage_logs
 
 # Password Hashing
-# Switching to pbkdf2_sha256 because bcrypt causes version conflicts with recent passlib
 pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 def hash_password(password: str):
@@ -38,42 +27,37 @@ def hash_password(password: str):
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
-# API Key Validation Dependency
-api_key_header = APIKeyHeader(name="X-API-KEY", auto_error=False)
-
-async def validate_api_key(api_key: str = Security(api_key_header)):
-    if not api_key:
-        raise HTTPException(status_code=401, detail="API Key missing")
-
-    conn = get_db()
-    cursor = conn.cursor()
+# API Key Validation (Middleware-ready)
+async def validate_api_key(x_api_key: str = Header(None)):
+    if not x_api_key:
+        raise HTTPException(status_code=401, detail="X-API-KEY header missing")
     
-    # 1. Check if key exists
-    cursor.execute("SELECT * FROM api_keys WHERE key = ?", (api_key,))
-    key_record = cursor.fetchone()
+    # Check key in MongoDB
+    key_record = await keys_col.find_one({"key": x_api_key})
     if not key_record:
         raise HTTPException(status_code=403, detail="Invalid API Key")
 
-    api_key_id = key_record["id"]
+    # Check Usage (50/day limit)
     today = str(date.today())
+    usage_entry = await usage_col.find_one({
+        "api_key_id": key_record["_id"],
+        "usage_date": today
+    })
 
-    # 2. Daily Usage limit (50)
-    cursor.execute("SELECT count FROM usage_logs WHERE api_key_id = ? AND usage_date = ?", (api_key_id, today))
-    usage_record = cursor.fetchone()
-    
-    current_count = 0
-    if usage_record:
-        current_count = usage_record["count"]
+    if usage_entry and usage_entry["count"] >= 50:
+        raise HTTPException(status_code=429, detail="Daily usage limit (50) reached")
 
-    if current_count >= 50:
-        raise HTTPException(status_code=429, detail="Daily usage limit (50) exceeded")
-
-    # 3. Increment Count
-    if usage_record:
-        cursor.execute("UPDATE usage_logs SET count = count + 1 WHERE api_key_id = ? AND usage_date = ?", (api_key_id, today))
+    # Update usage
+    if usage_entry:
+        await usage_col.update_one(
+            {"_id": usage_entry["_id"]},
+            {"$inc": {"count": 1}}
+        )
     else:
-        cursor.execute("INSERT INTO usage_logs (id, api_key_id, usage_date, count) VALUES (?, ?, ?, ?)", 
-                       (str(uuid.uuid4()), api_key_id, today, 1))
-    
-    conn.commit()
+        await usage_col.insert_one({
+            "api_key_id": key_record["_id"],
+            "usage_date": today,
+            "count": 1
+        })
+
     return key_record["user_id"]
