@@ -55,6 +55,30 @@ Transcribes audio into text.
       -F "file=@test_voice.mp3"
     ```
 
+## 🧬 Database & Auth (Supabase)
+
+To enable API keys and the 50 calls/day limit, you'll need a **Supabase** project:
+
+1.  **Run SQL**: Open your Supabase SQL Editor and run the content of `[supabase_setup.sql](file:///home/poser/Documents/github_work/VaaS/supabase_setup.sql)`.
+2.  **Environment Setup**: Fill in your `[vaas/.env](file:///home/poser/Documents/github_work/VaaS/vaas/.env)` with your Supabase URL and **Service Role Key** (for server-side usage tracking).
+3.  **Website Setup**: Open `[web/index.html](file:///home/poser/Documents/github_work/VaaS/web/index.html)` and replace the `SUPABASE_URL` and `SUPABASE_ANON_KEY` variables with your project credentials.
+
+---
+
+## 🌐 Dashboard & User Signup
+
+We've added a premium website in `web/index.html`. Users can:
+- **Sign up/Login** (using Supabase Auth).
+- **Generate API Keys**.
+- **Monitor Usage** (see their current count out of 50).
+
+To serve the website:
+```bash
+# Example using python's built-in server
+python -m http.server 3000 --directory web
+```
+Then visit `http://localhost:3000`.
+
 ---
 
 ## 🛠️ Local Setup (Quick Recap)

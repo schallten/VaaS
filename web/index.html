@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VaaS — Quick Voice for Hackathons</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050505;
+            --accent: #bc7af9;
+            --accent-glow: rgba(188, 122, 249, 0.3);
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --text-main: #ffffff;
+            --text-dim: #a0a0a0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+            background-image: radial-gradient(circle at 50% -20%, var(--accent-glow) 0%, transparent 50%);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2rem 10%;
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-main);
+            text-decoration: none;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 6rem 10% 4rem;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #fff 0%, #aaa 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            letter-spacing: -1.5px;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-dim);
+            max-width: 600px;
+            margin: 0 auto 2.5rem;
+        }
+
+        .btn {
+            background-color: var(--accent);
+            color: #000;
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px var(--accent-glow);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            margin-left: 1rem;
+        }
+
+        .section {
+            padding: 4rem 10%;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 2rem;
+            backdrop-filter: blur(20px);
+            max-width: 450px;
+            margin: 2rem auto;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.8rem 1rem;
+            border-radius: 12px;
+            color: var(--text-main);
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        textarea {
+            height: 70px;
+            resize: none;
+        }
+
+        .dashboard {
+            display: none;
+            padding: 4rem 10%;
+        }
+
+        #api-key-container {
+            background: rgba(0, 255, 0, 0.05);
+            border: 1px dashed rgba(0, 255, 0, 0.3);
+            padding: 1rem;
+            border-radius: 12px;
+            font-family: monospace;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+
+        .usage-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin-top: 1rem;
+            overflow: hidden;
+        }
+
+        .usage-progress {
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: width 1s ease;
+        }
+
+        .playground-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        /* Improved Audio Player Styles */
+        .player-bar {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .player-bar.visible {
+            opacity: 1;
+        }
+
+        .play-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .control-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #fff;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .control-btn:hover {
+            background: var(--accent);
+            color: #000;
+        }
+
+        footer {
+            padding: 3rem 10%;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 900px) {
+
+            .features-grid,
+            .playground-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <a href="/" class="logo">VAAS</a>
+        <div id="nav-btn-container">
+            <button class="btn" style="padding: 0.6rem 1.5rem;" onclick="scrollToAuth()">Login</button>
+        </div>
+    </nav>
+
+    <div id="landing-page">
+        <!-- Hero section remains same -->
+        <section class="hero">
+            <h1>Quick Voice for Hackathons.</h1>
+            <p>Don't waste time on A-P-I keys or billing. Just run it locally and get Speech-to-Text and Text-to-Speech
+                in seconds.</p>
+            <div style="display: flex; justify-content: center; gap: 1rem;">
+                <button class="btn" onclick="scrollToAuth()">Get Started</button>
+                <a href="https://github.com/schallten/vaas" target="_blank" class="btn btn-outline">Star on GitHub</a>
+            </div>
+        </section>
+
+        <!-- Features section remains same -->
+        <section class="section">
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>⚡ 0 SEC SETUP</h3>
+                    <p>Copy the code, record voice, get result. No setup.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>💸 $0 BILLING</h3>
+                    <p>No credit cards. No tiers. Infinite generations.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🌍 MULTlingual</h3>
+                    <p>ES, DE, FR, JP, KO, ZH, AR supported.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="auth-section" class="card">
+            <h2 id="auth-title" style="text-align: center;">Signup for a Key</h2>
+            <div class="form-group"><label>Username</label><input type="text" id="username" placeholder="user123"></div>
+            <div class="form-group"><label>Password</label><input type="password" id="password" placeholder="••••••••">
+            </div>
+            <button class="btn" style="width: 100%;" id="auth-btn" onclick="handleAuth()">Sign Up</button>
+            <p style="text-align: center; margin-top: 1rem; font-size: 0.9rem; color: var(--text-dim);">
+                Already have an account? <a href="#" style="color: var(--accent);" onclick="toggleAuthMode()">Login</a>
+            </p>
+        </section>
+    </div>
+
+    <div id="dashboard" class="dashboard">
+        <h2 style="font-size: 2rem;" id="welcome-text">Dashboard</h2>
+
+        <!-- Key Card remains same -->
+        <div class="card" style="max-width: 100%; margin: 2rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3>Your API Key</h3><button class="btn" onclick="regenerateKey()" id="gen-btn">Generate</button>
+            </div>
+            <div id="api-key-container"><span id="api-key-text">Click generate</span><button
+                    style="background:none; border:none; color:var(--accent); cursor:pointer"
+                    onclick="copyKey()">Copy</button></div>
+            <div style="margin-top: 1.5rem;">
+                <div style="display:flex;justify-content:space-between"><span>Usage (Hackathon Spec)</span><span
+                        id="usage-text">0/50</span></div>
+                <div class="usage-bar">
+                    <div class="usage-progress" id="usage-bar"></div>
+                </div>
+            </div>
+        </div>
+
+        <h3>🕹️ Playground</h3>
+        <div class="playground-grid">
+            <!-- TTS Playground -->
+            <div class="card" style="max-width: 100%; margin: 0;">
+                <h3>🔊 Text to Speech</h3>
+                <div class="form-group"><textarea id="tts-text" placeholder="Something to say..."></textarea></div>
+                <div class="form-group">
+                    <label>Language</label>
+                    <select id="tts-voice">
+                        <option value="en_us_ava" selected>English (Ava - Smooth)</option>
+                        <option value="en_us_andrew">English (Andrew - Deep)</option>
+                        <option value="en_in_neerja">English (Neerja - India)</option>
+                        <option value="hi_in_madhur">Hindi (Madhur)</option>
+                        <option value="es_mx_dalia">Spanish (Mexico - Dalia)</option>
+                        <option value="es_es_alvaro">Spanish (Spain - Alvaro)</option>
+                        <option value="de_de_katja">German (Katja)</option>
+                        <option value="ja_jp_nanami">Japanese (Nanami)</option>
+                        <option value="ko_kr_sunhi">Korean (SunHi)</option>
+                        <option value="zh_cn_xiaoxiao">Chinese (Xiaoxiao)</option>
+                        <option value="ar_sa_hamed">Arabic (Hamed)</option>
+                    </select>
+                </div>
+                <button class="btn" style="width: 100%;" id="tts-btn" onclick="testTTS()">Generate Audio</button>
+
+                <!-- Player Controls -->
+                <div id="tts-player-bar" class="player-bar">
+                    <div class="play-controls">
+                        <button class="control-btn" onclick="playAudio()">▶ Play</button>
+                        <button class="control-btn" onclick="pauseAudio()">⏸ Pause</button>
+                        <button class="control-btn" onclick="stopAudio()">⏹ Stop</button>
+                    </div>
+                    <span id="player-status" style="font-size:0.75rem; color:var(--accent);">Ready</span>
+                </div>
+                <audio id="tts-player" style="display:none"></audio>
+            </div>
+
+            <!-- STT Playground -->
+            <div class="card" style="max-width: 100%; margin: 0;">
+                <h3>🎙️ Speech to Text</h3>
+                <p style="font-size:0.8rem; color:var(--text-dim);">Whisper detects language automatically.</p>
+                <div class="form-group"><input type="file" id="stt-file" accept="audio/*"></div>
+                <div style="display: flex; gap: 1rem;">
+                    <button class="btn" style="flex:1;" id="record-btn" onclick="toggleRecording()">Mic</button>
+                    <button class="btn" style="flex:1;" id="stt-btn" onclick="testSTT()">Transcribe</button>
+                </div>
+                <div id="record-status" style="font-size:0.8rem; color:var(--accent); margin-top:0.5rem;"></div>
+                <div style="margin-top: 1rem;">
+                    <div id="stt-result"
+                        style="background:rgba(0,0,0,0.3); padding:1rem; border-radius:12px; min-height:50px;">Result...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 VaaS — Hackathon Special. <a href="https://github.com/schallten/vaas" target="_blank"
+                style="color:var(--accent);">GitHub</a>.</p>
+    </footer>
+
+    <script>
+        const API_BASE = "http://localhost:8000";
+        let currentUser = JSON.parse(localStorage.getItem('vaas_user'));
+        let isLoginMode = false;
+        let mediaRecorder;
+        let audioChunks = [];
+        let ttsAudioURL = null;
+
+        function scrollToAuth() { document.getElementById('auth-section').scrollIntoView({ behavior: 'smooth' }); }
+        function toggleAuthMode() { isLoginMode = !isLoginMode; document.getElementById('auth-title').innerText = isLoginMode ? 'Welcome Back' : 'Signup for a Key'; document.getElementById('auth-btn').innerText = isLoginMode ? 'Login' : 'Sign Up'; }
+
+        async function handleAuth() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const formData = new FormData(); formData.append('username', username); formData.append('password', password);
+            try {
+                const res = await fetch(API_BASE + (isLoginMode ? '/auth/login' : '/auth/signup'), { method: 'POST', body: formData });
+                const data = await res.json();
+                if (res.ok) { localStorage.setItem('vaas_user', JSON.stringify(data)); currentUser = data; checkSession(); }
+                else alert(data.error);
+            } catch (err) { alert("Server error."); }
+        }
+
+        function checkSession() {
+            if (currentUser) {
+                document.getElementById('landing-page').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+                document.getElementById('nav-btn-container').innerHTML = `<button class="btn" style="padding: 0.6rem 1.5rem;" onclick="logout()">Logout</button>`;
+                document.getElementById('welcome-text').innerText = `Welcome, ${currentUser.username}`;
+                loadUserData();
+            }
+        }
+
+        async function loadUserData() {
+            try {
+                const res = await fetch(`${API_BASE}/auth/me?user_id=${currentUser.id}`);
+                const data = await res.json();
+                if (data.api_key) document.getElementById('api-key-text').innerText = data.api_key;
+                const count = data.usage || 0;
+                document.getElementById('usage-text').innerText = `${count}/50`;
+                document.getElementById('usage-bar').style.width = `${(count / 50) * 100}%`;
+            } catch (err) { }
+        }
+
+        async function regenerateKey() {
+            const formData = new FormData(); formData.append('user_id', currentUser.id);
+            await fetch(`${API_BASE}/auth/generate-key`, { method: 'POST', body: formData });
+            loadUserData();
+        }
+
+        // TTS Player Controls
+        function playAudio() { document.getElementById('tts-player').play(); document.getElementById('player-status').innerText = "Playing..."; }
+        function pauseAudio() { document.getElementById('tts-player').pause(); document.getElementById('player-status').innerText = "Paused"; }
+        function stopAudio() {
+            const player = document.getElementById('tts-player');
+            player.pause(); player.currentTime = 0;
+            document.getElementById('player-status').innerText = "Stopped";
+        }
+
+        async function testTTS() {
+            const apiKey = document.getElementById('api-key-text').innerText;
+            const text = document.getElementById('tts-text').value;
+            if (apiKey.includes("generate") || !text) return alert("Key or text missing.");
+
+            const btn = document.getElementById('tts-btn');
+            btn.disabled = true; btn.innerText = "Generating...";
+
+            const formData = new FormData(); formData.append('text', text); formData.append('voice', document.getElementById('tts-voice').value);
+
+            const res = await fetch(`${API_BASE}/tts`, { method: 'POST', headers: { 'X-API-KEY': apiKey }, body: formData });
+            if (res.ok) {
+                const blob = await res.blob();
+                if (ttsAudioURL) URL.revokeObjectURL(ttsAudioURL);
+                ttsAudioURL = URL.createObjectURL(blob);
+                const player = document.getElementById('tts-player');
+                player.src = ttsAudioURL;
+                document.getElementById('tts-player-bar').classList.add('visible');
+                playAudio();
+                loadUserData();
+            }
+            btn.disabled = false; btn.innerText = "Generate Audio";
+        }
+
+        async function testSTT(blob = null) {
+            const apiKey = document.getElementById('api-key-text').innerText;
+            const resDiv = document.getElementById('stt-result');
+            let fileToUpload = blob || document.getElementById('stt-file').files[0];
+            if (!fileToUpload || apiKey.includes("generate")) return alert("File/Mic recording missing.");
+            resDiv.innerText = "Transcribing...";
+            const formData = new FormData(); formData.append('file', fileToUpload, blob ? "r.webm" : fileToUpload.name);
+            const res = await fetch(`${API_BASE}/stt`, { method: 'POST', headers: { 'X-API-KEY': apiKey }, body: formData });
+            if (res.ok) { const data = await res.json(); resDiv.innerText = data.text; loadUserData(); }
+        }
+
+        async function toggleRecording() {
+            const btn = document.getElementById('record-btn');
+            const status = document.getElementById('record-status');
+            if (mediaRecorder && mediaRecorder.state === "recording") { mediaRecorder.stop(); btn.innerText = "Mic"; status.innerText = ""; return; }
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream); audioChunks = [];
+            mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
+            mediaRecorder.onstop = () => { const blob = new Blob(audioChunks, { type: 'audio/webm' }); testSTT(blob); };
+            mediaRecorder.start(); btn.innerText = "Stop"; status.innerText = "Recording...";
+        }
+
+        function copyKey() { navigator.clipboard.writeText(document.getElementById('api-key-text').innerText); alert("Copied!"); }
+        function logout() { localStorage.removeItem('vaas_user'); window.location.reload(); }
+        checkSession();
+    </script>
+</body>
+
+</html>
