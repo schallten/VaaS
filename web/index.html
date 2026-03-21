@@ -314,7 +314,7 @@
                     onclick="copyKey()">Copy</button></div>
             <div style="margin-top: 1.5rem;">
                 <div style="display:flex;justify-content:space-between"><span>Usage (Hackathon Spec)</span><span
-                        id="usage-text">0/50</span></div>
+                        id="usage-text">0/100</span></div>
                 <div class="usage-bar">
                     <div class="usage-progress" id="usage-bar"></div>
                 </div>
@@ -420,8 +420,8 @@
                 const data = await res.json();
                 if (data.api_key) document.getElementById('api-key-text').innerText = data.api_key;
                 const count = data.usage || 0;
-                document.getElementById('usage-text').innerText = `${count}/50`;
-                document.getElementById('usage-bar').style.width = `${(count / 50) * 100}%`;
+                document.getElementById('usage-text').innerText = `${count}/100`;
+                document.getElementById('usage-bar').style.width = `${(count / 100) * 100}%`;
             } catch (err) { }
         }
 

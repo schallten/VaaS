@@ -44,8 +44,8 @@ async def validate_api_key(x_api_key: str = Header(None)):
         "usage_date": today
     })
 
-    if usage_entry and usage_entry["count"] >= 50:
-        raise HTTPException(status_code=429, detail="Daily usage limit (50) reached")
+    if usage_entry and usage_entry["count"] >= 100:
+        raise HTTPException(status_code=429, detail="Daily usage limit (100) reached")
 
     # Update usage
     if usage_entry:

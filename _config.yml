@@ -1,0 +1,8 @@
+remote_theme: pages-themes/modernist@v0.2.0
+plugins:
+- jekyll-remote-theme
+
+title: VaaS — Voice as a Service
+description: A lightweight, open-source voice processing API for hackathons.
+show_downloads: true
+google_analytics: null
