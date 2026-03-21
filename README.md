@@ -2,7 +2,7 @@
 
 ![Status](https://img.shields.io/badge/Status-Live-success)
 ![Limit](https://img.shields.io/badge/Limit-100%20uses%2Fday-blue)
-![License](https://img.shields.io/badge/License-MIT-purple)
+![License](https://img.shields.io/badge/License-Apache_2.0-orange)
 
 VaaS is a lightweight, open-source voice processing API built for hackathons and quick prototypes. Get high-quality Speech-to-Text and Text-to-Speech without the headache of cloud billing or complex setups.
 
@@ -17,24 +17,68 @@ VaaS is a lightweight, open-source voice processing API built for hackathons and
 - **🔊 Natural Voices**: TTS powered by premium Microsoft Edge-TTS.
 - **🛡️ Privacy Focused**: All processing is handled on your own Python server.
 
-### 🛠️ API Usage
-VaaS is designed to be dead simple for teams. Once you have a key from the dashboard:
+---
 
-#### 🔊 Text-to-Speech (TTS)
+### 🤖 AI Agent Integration (Fast-Track)
+*Paste this into your AI coding assistant (like Antigravity or ChatGPT) to immediately teach it the VaaS API:*
+
+```text
+The VaaS API is a Voice processing service.
+Base URL: https://vaas-production-c42f.up.railway.app
+Authentication: Include your key in the 'X-API-KEY' header.
+
+1. Text-To-Speech (TTS):
+   - Endpoint: POST /tts
+   - Content-Type: multipart/form-data
+   - Params: 'text' (string), 'voice' (string, e.g. 'en_us_ava').
+   - Return: MP3 Audio file.
+
+2. Speech-To-Text (STT):
+   - Endpoint: POST /stt
+   - Content-Type: multipart/form-data
+   - Params: 'file' (audio file/blob).
+   - Return: JSON { "text": "transcription" }.
+```
+
+---
+
+### 🛠️ API Documentation (Detailed)
+
+#### 1. POST `/tts` (Text-to-Speech)
+Generates an MP3 file from text.
+
+| Parameter | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `text` | `string` | Yes | The text to convert to speech. |
+| `voice` | `string` | No | ID of the voice to use (default: `en_us_ava`). |
+
+**Header:** `X-API-KEY: your_api_key`
+
+**Example:**
 ```bash
 curl -X POST "https://vaas-production-c42f.up.railway.app/tts" \
-  -H "X-API-KEY: your_key_here" \
+  -H "X-API-KEY: your_key" \
   -F "text=Hello World" \
-  -F "voice=en_us_ava" \
   --output voice.mp3
 ```
 
-#### 🎙️ Speech-to-Text (STT)
+#### 2. POST `/stt` (Speech-to-Text)
+Transcribes an audio file into text.
+
+| Parameter | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `file` | `file` | Yes | The audio file (WAV, MP3, WEBM). |
+
+**Header:** `X-API-KEY: your_api_key`
+
+**Example:**
 ```bash
 curl -X POST "https://vaas-production-c42f.up.railway.app/stt" \
-  -H "X-API-KEY: your_key_here" \
+  -H "X-API-KEY: your_key" \
   -F "file=@voice.mp3"
 ```
+
+---
 
 ### 📦 Local Setup
 If you want to run VaaS yourself:
@@ -53,4 +97,4 @@ uvicorn vaas.main:app --reload
 ```
 
 ---
-Built with ❤️ for the developer community. Open source under MIT.
+Built with ❤️ for the developer community. Open source under Apache License 2.0.

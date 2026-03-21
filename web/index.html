@@ -321,6 +321,37 @@
             </div>
         </div>
 
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 3rem 0;">
+            <!-- AI Integration Card -->
+            <div class="card" style="margin:0; border: 1px solid rgba(188, 122, 249, 0.4);">
+                <h3>🤖 AI Agent Prompt</h3>
+                <p style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 1rem;">Copy this to teach your AI
+                    Agent the VaaS API instantly.</p>
+                <div
+                    style="background: rgba(0,0,0,0.5); padding: 1rem; border-radius: 12px; font-family: monospace; font-size: 0.75rem; border: 1px solid rgba(255,255,255,0.1);">
+                    The VaaS API is a Voice processing service at:
+                    https://vaas-production-c42f.up.railway.app
+                    Auth Header: 'X-API-KEY: key_here'
+                    TTS: POST /tts (params: text, voice) -> Audio
+                    STT: POST /stt (params: file) -> JSON {text: ...}
+                </div>
+            </div>
+
+            <!-- API Docs Links -->
+            <div class="card" style="margin:0;">
+                <h3>📖 Web API Docs</h3>
+                <p style="font-size: 0.8rem; color: var(--text-dim);">Detailed integration guides for your team.</p>
+                <ul style="font-size: 0.85rem; padding-left: 1.2rem; color: var(--accent);">
+                    <li><a href="https://github.com/schallten/vaas#detailed-api-documentation" target="_blank"
+                            style="color: inherit;">Full Documentation Table</a></li>
+                    <li><a href="https://github.com/schallten/vaas#speech-to-text-stt" target="_blank"
+                            style="color: inherit;">STT Curl Example</a></li>
+                    <li><a href="https://github.com/schallten/vaas#text-to-speech-tts" target="_blank"
+                            style="color: inherit;">TTS Curl Example</a></li>
+                </ul>
+            </div>
+        </div>
+
         <h3>🕹️ Playground</h3>
         <div class="playground-grid">
             <!-- TTS Playground -->
@@ -377,8 +408,8 @@
     </div>
 
     <footer>
-        <p>&copy; 2026 VaaS — Hackathon Special. <a href="https://github.com/schallten/vaas" target="_blank"
-                style="color:var(--accent);">GitHub</a>.</p>
+        <p>&copy; 2026 VaaS — Hackathon Special. Open Source under <a href="https://github.com/schallten/vaas"
+                target="_blank" style="color:var(--accent);">Apache 2.0</a>.</p>
     </footer>
 
     <script>
