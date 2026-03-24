@@ -332,8 +332,8 @@
                     The VaaS API is a Voice processing service at:
                     https://vaas-production-c42f.up.railway.app
                     Auth Header: 'X-API-KEY: key_here'
-                    TTS: POST /tts (params: text, voice) -> Audio
-                    STT: POST /stt (params: file) -> JSON {text: ...}
+                    TTS: POST /tts (params: text, voice, language) -> Audio
+                    STT: POST /stt (params: file, language) -> JSON {text: ...}
                 </div>
             </div>
 
@@ -343,11 +343,11 @@
                 <p style="font-size: 0.8rem; color: var(--text-dim);">Detailed integration guides for your team.</p>
                 <ul style="font-size: 0.85rem; padding-left: 1.2rem; color: var(--accent);">
                     <li><a href="https://github.com/schallten/vaas#detailed-api-documentation" target="_blank"
-                            style="color: inherit;">Full Documentation Table</a></li>
+                            style="color: inherit;">Full Documentation Table (updated)</a></li>
                     <li><a href="https://github.com/schallten/vaas#speech-to-text-stt" target="_blank"
-                            style="color: inherit;">STT Curl Example</a></li>
+                            style="color: inherit;">STT with Language Support</a></li>
                     <li><a href="https://github.com/schallten/vaas#text-to-speech-tts" target="_blank"
-                            style="color: inherit;">TTS Curl Example</a></li>
+                            style="color: inherit;">TTS with Language IDs</a></li>
                 </ul>
             </div>
         </div>
@@ -359,7 +359,7 @@
                 <h3>🔊 Text to Speech</h3>
                 <div class="form-group"><textarea id="tts-text" placeholder="Something to say..."></textarea></div>
                 <div class="form-group">
-                    <label>Language</label>
+                    <label>Voice / Language</label>
                     <select id="tts-voice">
                         <option value="en_us_ava" selected>English (Ava - Smooth)</option>
                         <option value="en_us_andrew">English (Andrew - Deep)</option>
@@ -391,7 +391,21 @@
             <!-- STT Playground -->
             <div class="card" style="max-width: 100%; margin: 0;">
                 <h3>🎙️ Speech to Text</h3>
-                <p style="font-size:0.8rem; color:var(--text-dim);">Whisper detects language automatically.</p>
+                <p style="font-size:0.8rem; color:var(--text-dim);">Whisper detects language automatically by default.</p>
+                <div class="form-group">
+                    <label>Target Language</label>
+                    <select id="stt-language">
+                        <option value="" selected>Auto-detect</option>
+                        <option value="en">English</option>
+                        <option value="hi">Hindi</option>
+                        <option value="es">Spanish</option>
+                        <option value="de">German</option>
+                        <option value="ja">Japanese</option>
+                        <option value="ko">Korean</option>
+                        <option value="zh">Chinese</option>
+                        <option value="ar">Arabic</option>
+                    </select>
+                </div>
                 <div class="form-group"><input type="file" id="stt-file" accept="audio/*"></div>
                 <div style="display: flex; gap: 1rem;">
                     <button class="btn" style="flex:1;" id="record-btn" onclick="toggleRecording()">Mic</button>
@@ -413,7 +427,7 @@
     </footer>
 
     <script>
-        const API_BASE = "https://vaas-production-c42f.up.railway.app";
+        const API_BASE = window.location.origin; // Dynamically use the current origin
         let currentUser = JSON.parse(localStorage.getItem('vaas_user'));
         let isLoginMode = false;
         let mediaRecorder;
@@ -479,7 +493,9 @@
             const btn = document.getElementById('tts-btn');
             btn.disabled = true; btn.innerText = "Generating...";
 
-            const formData = new FormData(); formData.append('text', text); formData.append('voice', document.getElementById('tts-voice').value);
+            const formData = new FormData(); 
+            formData.append('text', text); 
+            formData.append('voice', document.getElementById('tts-voice').value);
 
             const res = await fetch(`${API_BASE}/tts`, { method: 'POST', headers: { 'X-API-KEY': apiKey }, body: formData });
             if (res.ok) {
@@ -498,10 +514,14 @@
         async function testSTT(blob = null) {
             const apiKey = document.getElementById('api-key-text').innerText;
             const resDiv = document.getElementById('stt-result');
+            const language = document.getElementById('stt-language').value;
             let fileToUpload = blob || document.getElementById('stt-file').files[0];
             if (!fileToUpload || apiKey.includes("generate")) return alert("File/Mic recording missing.");
             resDiv.innerText = "Transcribing...";
-            const formData = new FormData(); formData.append('file', fileToUpload, blob ? "r.webm" : fileToUpload.name);
+            const formData = new FormData(); 
+            formData.append('file', fileToUpload, blob ? "r.webm" : fileToUpload.name);
+            if (language) formData.append('language', language);
+
             const res = await fetch(`${API_BASE}/stt`, { method: 'POST', headers: { 'X-API-KEY': apiKey }, body: formData });
             if (res.ok) { const data = await res.json(); resDiv.innerText = data.text; loadUserData(); }
         }

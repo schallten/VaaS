@@ -30,13 +30,15 @@ Authentication: Include your key in the 'X-API-KEY' header.
 1. Text-To-Speech (TTS):
    - Endpoint: POST /tts
    - Content-Type: multipart/form-data
-   - Params: 'text' (string), 'voice' (string, e.g. 'en_us_ava').
+   - Params: 'text' (string), 'voice' (string, e.g. 'en_us_ava'), 'language' (string, e.g. 'en', 'es').
+   - Note: If 'language' is provided without 'voice', a default voice for that language is used.
    - Return: MP3 Audio file.
 
 2. Speech-To-Text (STT):
    - Endpoint: POST /stt
    - Content-Type: multipart/form-data
-   - Params: 'file' (audio file/blob).
+   - Params: 'file' (audio file/blob), 'language' (string, e.g. 'en', 'hi').
+   - Note: 'language' is optional but improves accuracy. Whisper auto-detects by default.
    - Return: JSON { "text": "transcription" }.
 ```
 
@@ -50,7 +52,8 @@ Generates an MP3 file from text.
 | Parameter | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | `text` | `string` | Yes | The text to convert to speech. |
-| `voice` | `string` | No | ID of the voice to use (default: `en_us_ava`). |
+| `voice` | `string` | No | ID of the voice to use (e.g. `en_us_ava`). |
+| `language` | `string` | No | Language code (e.g. `en`, `es`, `hi`) to use a default voice. |
 
 **Header:** `X-API-KEY: your_api_key`
 
@@ -59,6 +62,7 @@ Generates an MP3 file from text.
 curl -X POST "https://vaas-production-c42f.up.railway.app/tts" \
   -H "X-API-KEY: your_key" \
   -F "text=Hello World" \
+  -F "language=en" \
   --output voice.mp3
 ```
 
@@ -68,6 +72,7 @@ Transcribes an audio file into text.
 | Parameter | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | `file` | `file` | Yes | The audio file (WAV, MP3, WEBM). |
+| `language` | `string` | No | Explicit language code for transcription (e.g. `en`, `es`). |
 
 **Header:** `X-API-KEY: your_api_key`
 
@@ -75,7 +80,8 @@ Transcribes an audio file into text.
 ```bash
 curl -X POST "https://vaas-production-c42f.up.railway.app/stt" \
   -H "X-API-KEY: your_key" \
-  -F "file=@voice.mp3"
+  -F "file=@voice.mp3" \
+  -F "language=en"
 ```
 
 ---

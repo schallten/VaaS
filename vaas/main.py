@@ -26,7 +26,7 @@ app.add_middleware(
 # Load lightweight whisper model
 model = WhisperModel("tiny", compute_type="int8")
 
-# Global voices
+# Global voices mapping
 VOICES = {
     "en_us_ava": "en-US-AvaNeural",
     "en_us_andrew": "en-US-AndrewNeural",
@@ -39,6 +39,18 @@ VOICES = {
     "ko_kr_sunhi": "ko-KR-SunHiNeural",
     "zh_cn_xiaoxiao": "zh-CN-XiaoxiaoNeural",
     "ar_sa_hamed": "ar-SA-HamedNeural"
+}
+
+# Default voice for each language code
+LANGUAGE_TO_VOICE = {
+    "en": "en_us_ava",
+    "hi": "hi_in_madhur",
+    "es": "es_mx_dalia",
+    "de": "de_de_katja",
+    "ja": "ja_jp_nanami",
+    "ko": "ko_kr_sunhi",
+    "zh": "zh_cn_xiaoxiao",
+    "ar": "ar_sa_hamed"
 }
 
 # Cleanup helper
@@ -92,20 +104,30 @@ async def generate_key(user_id: str = Form(...)):
 
 # STT / TTS
 @app.post("/stt")
-async def stt(background_tasks: BackgroundTasks, file: UploadFile = File(...), user_id: str = Depends(validate_api_key)):
+async def stt(background_tasks: BackgroundTasks, file: UploadFile = File(...), language: str = Form(None), user_id: str = Depends(validate_api_key)):
     try:
         filename = f"temp_{uuid.uuid4()}.wav"
         with open(filename, "wb") as f: f.write(await file.read())
-        segments, _ = model.transcribe(filename)
+        # whisper model supports language parameter for better accuracy
+        segments, _ = model.transcribe(filename, language=language)
         text = " ".join([seg.text for seg in segments])
         background_tasks.add_task(cleanup_temp_file, filename)
         return {"text": text.strip()}
     except Exception as e: return JSONResponse(status_code=500, content={"error": str(e)})
 
 @app.post("/tts")
-async def tts(background_tasks: BackgroundTasks, text: str = Form(...), voice: str = Form("en_us_ava"), user_id: str = Depends(validate_api_key)):
+async def tts(background_tasks: BackgroundTasks, text: str = Form(...), voice: str = Form(None), language: str = Form(None), user_id: str = Depends(validate_api_key)):
     try:
-        if voice not in VOICES: return JSONResponse(status_code=400, content={"error": "Invalid voice"})
+        # If language is provided but not voice, use default voice for that language
+        if language and not voice:
+            voice = LANGUAGE_TO_VOICE.get(language)
+        
+        # Default to en_us_ava if neither or invalid language provided
+        if not voice:
+            voice = "en_us_ava"
+            
+        if voice not in VOICES: return JSONResponse(status_code=400, content={"error": "Invalid voice or language"})
+        
         filename = f"tts_{uuid.uuid4()}.mp3"
         communicate = edge_tts.Communicate(text, VOICES[voice])
         await communicate.save(filename)
